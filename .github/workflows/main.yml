@@ -37,6 +37,7 @@ jobs:
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
+          task definition: ecs-task-def.json 
           cluster: wise-cluster
           service: wisecow-task-service-62xtzbzd
           image: 311141542338.dkr.ecr.eu-west-1.amazonaws.com/wisecow-app:latest

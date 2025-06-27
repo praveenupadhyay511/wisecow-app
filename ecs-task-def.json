@@ -4,7 +4,7 @@
   "executionRoleArn": "arn:aws:iam::311141542338:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "name": "wisecow-app-cluster"
+      "name": "wisecow-app-cluster",
       "image": "311141542338.dkr.ecr.eu-west-1.amazonaws.com/wisecow-app:<IMAGE_TAG>",
       "essential": true,
       "portMappings": [

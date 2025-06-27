@@ -45,7 +45,7 @@ jobs:
     - name: Register New Task Definition
       id: register-task
       run: |
-          sed "s|<IMAGE_TAG>|${{ env.IMAGE_TAG }}|g" ecs-task-def.json > new-task-def.json
+          sed 's|<IMAGE_TAG>|${{ env.IMAGE_TAG }}|g' ecs-task-def.json > new-task-def.json
           TASK_ARN=$(aws ecs register-task-definition \
             --cli-input-json file://new-task-def.json \
             --query 'taskDefinition.taskDefinitionArn' \

@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+env:
+  AWS_REGION: eu-west-1
+  ECR_REGISTRY: 311141542338.dkr.ecr.eu-west-1.amazonaws.com
+  ECR_REPOSITORY: wisecow-app
+  IMAGE_TAG: latest
 
 jobs:
   deploy:
@@ -17,27 +22,30 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: AKIAUQ4L3FHBA5GIFSGJ
-          aws-secret-access-key: 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
-          aws-region: eu-west-1
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+    - name: Log in to Amazon ECR
+      run: |
+        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
 
-      - name: Build, tag, and push image to ECR
-        env:
-          ECR_REPOSITORY: wisecow-app
-          IMAGE_TAG: latest
-        run: |
-          docker build -t wisecow-app .
-          docker tag wisecow-app:latest 311141542338.dkr.ecr.eu-west-1.amazonaws.com/wisecow-app:latest
-          docker push 311141542338.dkr.ecr.eu-west-1.amazonaws.com/wisecow-app:latest
+    - name: Build Docker Image
+      run: |
+        docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
 
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task definition: ecs-task-def.json 
-          cluster: wise-cluster
-          service: wisecow-task-service-62xtzbzd
-          image: 311141542338.dkr.ecr.eu-west-1.amazonaws.com/wisecow-app:latest
+    - name: Tag Docker Image for ECR
+      run: |
+        docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Push Docker Image to ECR
+      run: |
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Deploy to Amazon ECS (Fargate)
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ecs-task-def.json
+        cluster: wisecow-cluster
+        service: wisecow-service
+        wait-for-service-stability: true

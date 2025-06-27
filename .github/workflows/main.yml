@@ -42,6 +42,16 @@ jobs:
       run: |
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
+    - name: Register New Task Definition
+      id: register-task
+      run: |
+          sed "s|<IMAGE_TAG>|${{ env.IMAGE_TAG }}|g" ecs-task-def.json > new-task-def.json
+          TASK_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://new-task-def.json \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+          echo "task_arn=$TASK_ARN" >> $GITHUB_OUTPUT
+
     - name: Deploy to Amazon ECS (Fargate)
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:

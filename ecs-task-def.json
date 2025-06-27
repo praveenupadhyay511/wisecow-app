@@ -1,32 +1,22 @@
 {
   "family": "wisecow-task",
   "networkMode": "awsvpc",
-  "requiresCompatibilities": ["FARGATE"],
-  "cpu": "1024",
-  "memory": "3072",
   "executionRoleArn": "arn:aws:iam::311141542338:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "wise-cluster",
-      "image": "311141542338.dkr.ecr.eu-west-1.amazonaws.com/wisecow-app:latest",
-      "cpu": 0,
+      "image": "311141542338.dkr.ecr.eu-west-1.amazonaws.com/wisecow-app",
+      "essential": true,
       "portMappings": [
         {
           "containerPort": 4499,
           "hostPort": 4499,
           "protocol": "tcp",
-          "appProtocol": "http"
-        }
-      ],
-      "essential": true,
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/wisecow-task",
-          "awslogs-region": "eu-west-1",
-          "awslogs-stream-prefix": "ecs"
-        }
-      }
+       }
+      ]
     }
-  ]
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512"
 }

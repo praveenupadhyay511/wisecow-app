@@ -46,7 +46,7 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ecs-task-def.json
-        cluster: wisecow-cluster
-        service: wisecow-service
+        cluster: wisecow-app-cluster
+        service: wisecow-task-service-62xtzbzd
         wait-for-service-stability: true
 

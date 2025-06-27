@@ -52,11 +52,11 @@ jobs:
             --output text)
           echo "task_arn=$TASK_ARN" >> $GITHUB_OUTPUT
 
-    - name: Deploy to Amazon ECS (Fargate)
+    - name: Deploy to Amazon ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: ecs-task-def.json
-        cluster: wisecow-app-cluster
-        service: wisecow-task-service-62xtzbzd
-        wait-for-service-stability: true
+         task-definition: new-task-def.json
+         cluster: wisecow-app-cluster
+         service: wisecow-task-service-62xtzbzd
+         wait-for-service-stability: true
 

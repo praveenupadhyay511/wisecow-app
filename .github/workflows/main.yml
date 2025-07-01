@@ -47,7 +47,7 @@ jobs:
     - name: Trivy Scan Docker Image
       run: |
         trivy/trivy image --timeout 5m --format json \
-          -o trivy-report.json $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 
+          -o trivy-report.json $ECR_REPOSITORY:$IMAGE_TAG 
           
     - name: Upload Trivy Report to S3
       run: |

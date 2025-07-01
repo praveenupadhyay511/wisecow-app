@@ -81,5 +81,5 @@ jobs:
          task-definition: new-task-def.json
          cluster: wisecow-app-cluster
          service: wisecow-task-service-dgq6508a 
-         wait-for-service-stability: true
+         # wait-for-service-stability: true
 

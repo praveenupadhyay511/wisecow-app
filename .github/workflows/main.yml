@@ -26,13 +26,35 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Log in to Amazon ECR
-      run: |
-        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+    - name: Cache Trivy binary
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: trivy
+        key: trivy-cache-${{ runner.os }}
 
+    - name: Install Trivy if not cached
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+        mkdir -p trivy && mv ./bin/trivy trivy/ 
+        
     - name: Build Docker Image
       run: |
         docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+    - name: Trivy Scan Docker Image
+      run: |
+        trivy/trivy image --timeout 5m --format json \
+          -o trivy-report.json $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Upload Trivy Report to S3
+      run: |
+        aws s3 cp trivy-report.json s3://$S3_BUCKET/trivy-report-${IMAGE_TAG}.json
+        
+    - name: Log in to Amazon ECR
+      run: |
+        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
 
     - name: Tag Docker Image for ECR
       run: |
